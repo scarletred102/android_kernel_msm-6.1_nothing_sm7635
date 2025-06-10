@@ -4972,10 +4972,13 @@ extern int nt_update_backlight(void);
 int send_refreshrate_cmd(struct dsi_panel *panel, int refreshrate)
 {
 	int rc = 0;
-	DSI_INFO("send fps cmd, fps = %d, last_fps = %d\n", refreshrate, panel->last_refresh_rate);
 	mutex_lock(&panel->panel_lock);
+	if (panel->lhbm_state) {
+		goto error;
+	}
 
 	panel->update_init_gamma = true;
+	DSI_INFO("send fps cmd, fps = %d, last_fps = %d\n", refreshrate, panel->last_refresh_rate);
 	if (panel->last_refresh_rate == 30 && refreshrate != 30) {
 		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_EXIT_30HZ);
 		if (rc) {
