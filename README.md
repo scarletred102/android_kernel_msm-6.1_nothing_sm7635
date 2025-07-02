@@ -22,6 +22,9 @@
 - NOS 3.1(Asteroids-V3.1-250529-1004)
   - update display driver
 
+- NOS 3.1(Asteroids-V3.1-250610-1841)
+  - No update
+
 
 # How do I submit patches to Android Common Kernels
 
