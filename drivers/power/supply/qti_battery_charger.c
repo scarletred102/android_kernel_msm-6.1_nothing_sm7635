@@ -2425,15 +2425,18 @@ static int nt_battid_open(struct inode *inode, struct file *file)
 const struct nt_proc entries[] = {
 	{"battery_health",{.proc_open = battery_health_open,
                       .proc_read = seq_read,
-                      .proc_lseek = seq_lseek,}
+                      .proc_lseek = seq_lseek,
+                      .proc_release = single_release,}
 	},
 	{"chg_data_id",{.proc_open = chg_data_id_open,
                       .proc_read = seq_read,
-                      .proc_lseek = seq_lseek,}
+                      .proc_lseek = seq_lseek,
+                      .proc_release = single_release,}
 	},
 	{"typec_cc_orientation",{.proc_open = nt_typec_cc_orientation_open,
 	                  .proc_read = seq_read,
-	                  .proc_lseek = seq_lseek,}
+	                  .proc_lseek = seq_lseek,
+	                  .proc_release = single_release,}
 	},
 	{"charge_pump_enable",{.proc_open = nt_charge_pump_enable_open,
 	                  .proc_read = seq_read,
