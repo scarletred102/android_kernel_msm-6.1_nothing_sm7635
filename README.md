@@ -25,6 +25,10 @@
 - NOS 3.1(Asteroids-V3.1-250610-1841)
   - No update
 
+- NOS 3.2(Asteroids-V3.2-250717-1803)
+  - USB:Optimize the logic of close_endpoints function
+  - Optimize Charger driver
+  - Optimize Display driver
 
 # How do I submit patches to Android Common Kernels
 
