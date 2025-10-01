@@ -30,6 +30,9 @@
   - Optimize Charger driver
   - Optimize Display driver
 
+- NOS 3.2(Asteroids-V3.2-250924-1736)
+  - qcacld-3.0: Enable active mode APF on screen off
+
 # How do I submit patches to Android Common Kernels
 
 1. BEST: Make all of your changes to upstream Linux. If appropriate, backport to the stable releases.
