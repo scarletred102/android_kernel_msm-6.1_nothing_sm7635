@@ -115,3 +115,4 @@ nothing_error_report.ko
 nothing_secure_element.ko
 nothing_virtual_ntc.ko
 qcom-dload-mode.ko
+nothing_restart_handler.ko

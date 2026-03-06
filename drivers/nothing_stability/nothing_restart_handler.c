@@ -5,6 +5,7 @@
 #include <linux/module.h>
 #include <linux/reboot.h>
 #include <linux/panic_notifier.h>
+#include <linux/nothing_restart_handler.h>
 
 static unsigned shared_imem_restart_info_size = 0x80;
 
@@ -23,12 +24,15 @@ static unsigned rst_msg_size;
 static char *kernel_panic_msg_buf;
 static char *reboot_msg_buf;
 
-static inline void set_restart_msg(const char *msg)
+void set_restart_msg(const char *msg)
 {
 	char magic[4];
-	
+
 	if (!restart_info || rst_msg_size == 0)
 		return;
+        if (magic[0] == 'S' && magic[1] == 'S') {
+		return;
+	}
 
 	/* Restart info magic: SS\xDE\xAD, System DEAD */
 	magic[0] = magic[1] = 'S';
@@ -46,9 +50,10 @@ static inline void set_restart_msg(const char *msg)
 	} else {
 		memcpy_toio((char __iomem *)restart_info + 4, "Unknown", 7);
 	}
-	
+
 	mb();
 }
+EXPORT_SYMBOL(set_restart_msg);
 
 static int nothing_notifier_panic(struct notifier_block *this, unsigned long event,
 			      void *ptr)
