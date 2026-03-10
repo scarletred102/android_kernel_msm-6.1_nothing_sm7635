@@ -19,6 +19,11 @@ load("//build/kernel/kleaf:workspace.bzl", "define_kleaf_workspace")
 
 define_kleaf_workspace()
 
+load("//build/kernel/nt_kleaf:key_value_repo.bzl", "key_value_repo")
+key_value_repo(
+    name = "nt_project_info",
+)
+
 # Optional epilog for analysis testing.
 load("//build/kernel/kleaf:workspace_epilog.bzl", "define_kleaf_workspace_epilog")
 define_kleaf_workspace_epilog()

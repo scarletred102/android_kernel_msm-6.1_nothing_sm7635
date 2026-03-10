@@ -1,3 +1,12 @@
+# NOTHING Phone(4a) Release Note
+ - NOS 4.1(Frogger-B4.1-260309-1830)
+   - First release opensource of kernel and kernel modules
+   - Devicetree and modules path
+      - arch/arm64/boot/dts/vendor/
+      - vendor/qcom/proprietary/
+      - vendor/qcom/opensource/
+
+
 # How do I submit patches to Android Common Kernels
 
 1. BEST: Make all of your changes to upstream Linux. If appropriate, backport to the stable releases.

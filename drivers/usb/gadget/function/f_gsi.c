@@ -3501,7 +3501,7 @@ static int gsi_bind(struct usb_configuration *c, struct usb_function *f)
 	status = gsi_complete_bind(gsi, cdev, &info);
 	if (status)
 		goto dereg_rndis;
-
+	return 0;
 dereg_rndis:
 	rndis_deregister(gsi->params);
 fail:
