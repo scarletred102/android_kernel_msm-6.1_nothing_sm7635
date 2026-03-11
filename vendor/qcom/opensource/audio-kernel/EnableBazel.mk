@@ -41,6 +41,8 @@ LOCAL_MODULE_KO_DIRS += asoc/codecs/wcd9378/wcd9378_dlkm.ko
 LOCAL_MODULE_KO_DIRS += asoc/codecs/wcd9378/wcd9378_slave_dlkm.ko
 LOCAL_MODULE_KO_DIRS += asoc/codecs/lpass_bt_swr_dlkm.ko
 LOCAL_MODULE_KO_DIRS += asoc/codecs/hdmi_dlkm.ko
+LOCAL_MODULE_KO_DIRS += asoc/codecs/tfa98xx/tfa98xx_dlkm.ko
+LOCAL_MODULE_KO_DIRS += asoc/codecs/aw882xx/aw882xx_dlkm.ko
 endif
 
 ifeq ($(call is-board-platform-in-list,pitti),true)

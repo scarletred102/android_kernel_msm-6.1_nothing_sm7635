@@ -11,6 +11,8 @@
 #include "cam_trace.h"
 #include "camera_main.h"
 #include "cam_compat.h"
+// xft add for nothing custom
+#include "cam_sensor_nothing.h"
 
 static struct cam_i3c_actuator_data {
 	struct cam_actuator_ctrl_t                  *a_ctrl;
@@ -69,9 +71,11 @@ static long cam_actuator_subdev_ioctl(struct v4l2_subdev *sd,
 				CAM_INFO(CAM_ACTUATOR,
 					"Failed for driver_cmd: %d, it has been flushed",
 					rc);
-			else
+			else {
+				cam_nt_driver_errcode(a_ctrl->soc_info.index, NT_CAM_ACTUATOR_ERR);
 				CAM_ERR(CAM_ACTUATOR,
 					"Failed for driver_cmd: %d", rc);
+			}
 		}
 		break;
 	case CAM_SD_SHUTDOWN:

@@ -32,7 +32,8 @@ ddk_headers(
 ddk_headers(
     name = "focaltech_headers",
     hdrs = glob([
-            "focaltech_touch/*.h"
+            "focaltech/*.h",
+            "focaltech/focaltech_test/*.h"
         ]
     )
 )

@@ -10,6 +10,8 @@
 #include "cam_flash_core.h"
 #include "cam_common_util.h"
 #include "camera_main.h"
+// xft add for nothing custom
+#include "cam_sensor_nothing.h"
 
 static int32_t cam_flash_driver_cmd(struct cam_flash_ctrl *fctrl,
 		void *arg, struct cam_flash_private_soc *soc_private)
@@ -305,9 +307,11 @@ static long cam_flash_subdev_ioctl(struct v4l2_subdev *sd,
 			if (rc == -EBADR)
 				CAM_INFO(CAM_FLASH,
 					"Failed in driver cmd: %d, it has been flushed", rc);
-			else
+			else {
+				//cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 				CAM_ERR(CAM_FLASH,
 					"Failed in driver cmd: %d", rc);
+			}
 		}
 		break;
 	}

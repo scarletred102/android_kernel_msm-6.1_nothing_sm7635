@@ -182,10 +182,15 @@ static int dsi_bridge_attach(struct drm_bridge *bridge,
 
 }
 
+static bool is_first_boot = true;
+extern ssize_t nt_rx_cmd(struct sde_connector *c_conn, const char *buf, size_t count);
 static void dsi_bridge_pre_enable(struct drm_bridge *bridge)
 {
 	int rc = 0;
 	struct dsi_bridge *c_bridge = to_dsi_bridge(bridge);
+	char buffer[] = "0x01 0x06 0x01 0x00 0x01 0x00 0x00 0x01 0xDB";
+	int code_len = 44;
+	struct sde_connector *c_conn = NULL;
 
 	if (!bridge) {
 		DSI_ERR("Invalid params\n");
@@ -215,6 +220,7 @@ static void dsi_bridge_pre_enable(struct drm_bridge *bridge)
 		DSI_DEBUG("[%d] seamless pre-enable\n", c_bridge->id);
 		return;
 	}
+	DSI_INFO("%s+\n", __func__);
 
 	SDE_ATRACE_BEGIN("dsi_display_prepare");
 	rc = dsi_display_prepare(c_bridge->display);
@@ -234,11 +240,22 @@ static void dsi_bridge_pre_enable(struct drm_bridge *bridge)
 		(void)dsi_display_unprepare(c_bridge->display);
 	}
 	SDE_ATRACE_END("dsi_display_enable");
+	DSI_INFO("%s-\n", __func__);
 
 	rc = dsi_display_splash_res_cleanup(c_bridge->display);
 	if (rc)
 		DSI_ERR("Continuous splash pipeline cleanup failed, rc=%d\n",
 									rc);
+
+	c_conn = to_sde_connector(c_bridge->display->drm_conn);
+
+	if (is_first_boot) {
+		nt_rx_cmd(c_conn, buffer, code_len);
+		c_bridge->display->panel->panel_batch_id = c_conn->cmd_rx_buf[0];
+		DSI_INFO("read back panel_batch_id = %02x\n", c_bridge->display->panel->panel_batch_id);
+		is_first_boot = false;
+	}
+
 }
 
 static void dsi_bridge_enable(struct drm_bridge *bridge)
@@ -326,6 +343,7 @@ static void dsi_bridge_post_disable(struct drm_bridge *bridge)
 	}
 
 	display = c_bridge->display;
+	DSI_INFO("%s+\n", __func__);
 
 	SDE_ATRACE_BEGIN("dsi_bridge_post_disable");
 	SDE_ATRACE_BEGIN("dsi_display_disable");
@@ -349,6 +367,7 @@ static void dsi_bridge_post_disable(struct drm_bridge *bridge)
 		return;
 	}
 	SDE_ATRACE_END("dsi_bridge_post_disable");
+	DSI_INFO("%s-\n", __func__);
 }
 
 static void dsi_bridge_mode_set(struct drm_bridge *bridge,

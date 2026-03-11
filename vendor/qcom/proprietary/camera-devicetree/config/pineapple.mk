@@ -14,4 +14,9 @@ dtbo-$(CONFIG_ARCH_VOLCANO)     += volcano-camera-fp1-fp2.dtbo
 dtbo-$(CONFIG_ARCH_VOLCANO)     += volcano-camera-qrd.dtbo
 dtbo-$(CONFIG_ARCH_VOLCANO)     += volcano-camera-sensor-mtp.dtbo
 dtbo-$(CONFIG_ARCH_VOLCANO)     += volcano-camera-sensor-idp.dtbo
+ifeq ($(CONFIG_NOTHING_IS_ASTEROIDS), y)
 dtbo-$(CONFIG_ARCH_VOLCANO)     += volcano-camera-sensor-qrd.dtbo
+dtbo-$(CONFIG_ARCH_VOLCANO)     += volcano-camera-sensor-qrd-pro.dtbo
+else ifeq ($(CONFIG_NOTHING_IS_FROGGER), y)
+dtbo-$(CONFIG_ARCH_VOLCANO)     += volcano-frogger-camera-sensor-qrd.dtbo
+endif

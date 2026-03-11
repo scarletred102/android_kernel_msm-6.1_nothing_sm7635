@@ -42,8 +42,13 @@ dtbo-y += niobe-bt.dtbo
 endif
 
 ifeq ($(CONFIG_ARCH_VOLCANO), y)
+ifeq ($(CONFIG_NOTHING_IS_FROGGER), y)
+dtbo-y += volcano-bt_frogger.dtbo
+dtbo-y += volcano-wcn6450-bt_frogger.dtbo
+else
 dtbo-y += volcano-bt.dtbo
 dtbo-y += volcano-wcn6450-bt.dtbo
+endif
 endif
 
 ifeq ($(CONFIG_ARCH_ANORAK),y)

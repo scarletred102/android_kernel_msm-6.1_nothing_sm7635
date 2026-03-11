@@ -1,3 +1,6 @@
+# Get TARGET_PRODUCT
+load("@nt_project_info//:dict.bzl", "TARGET_PRODUCT")
+
 _platform_map = {
     "autogvm": {
         "dtb_list": [
@@ -368,16 +371,16 @@ _platform_map = {
             {"name": "cliffs-mtp-overlay.dtbo"},
             {"name": "cliffs-qrd-overlay.dtbo"},
             {"name": "cliffs-rcm-overlay.dtbo"},
-            {"name": "cliffs-mtp-kiwi-2s-nfc-wcd9395-overlay.dtbo"},
-            {"name": "cliffs-mtp-peach-2s-nfc-wcd9395-overlay.dtbo"},
-            {"name": "cliffs-mtp-pm8550b-overlay.dtbo"},
-            {"name": "cliffs-mtp-kiwi-2s-nfc-wcd9395-pm8550b-overlay.dtbo"},
-            {"name": "cliffs-mtp-peach-2s-nfc-wcd9395-pm8550b-overlay.dtbo"},
-            {"name": "cliffs-rcm-qhdp-overlay.dtbo"},
-            {"name": "cliffs-rcm-fhdp-kiwi-overlay.dtbo"},
-            {"name": "cliffs-rcm-qhdp-kiwi-overlay.dtbo"},
-            {"name": "cliffs-mtp-kiwi-overlay.dtbo"},
-            {"name": "cliffs-mtp-peach-overlay.dtbo"},
+#            {"name": "cliffs-mtp-kiwi-2s-nfc-wcd9395-overlay.dtbo"},
+#            {"name": "cliffs-mtp-peach-2s-nfc-wcd9395-overlay.dtbo"},
+#            {"name": "cliffs-mtp-pm8550b-overlay.dtbo"},
+#            {"name": "cliffs-mtp-kiwi-2s-nfc-wcd9395-pm8550b-overlay.dtbo"},
+#            {"name": "cliffs-mtp-peach-2s-nfc-wcd9395-pm8550b-overlay.dtbo"},
+#            {"name": "cliffs-rcm-qhdp-overlay.dtbo"},
+#            {"name": "cliffs-rcm-fhdp-kiwi-overlay.dtbo"},
+#            {"name": "cliffs-rcm-qhdp-kiwi-overlay.dtbo"},
+#            {"name": "cliffs-mtp-kiwi-overlay.dtbo"},
+#            {"name": "cliffs-mtp-peach-overlay.dtbo"},
         ],
     },
     "pineapple-tuivm": {
@@ -648,35 +651,35 @@ _platform_map = {
     "volcano": {
         "dtb_list": [
             {"name": "volcano.dtb"},
-            {"name": "volcano6.dtb"},
-            {"name": "volcano6i-fp1.dtb"},
-            {"name": "volcano6i-fp2.dtb"},
-            {"name": "volcano6i-fp3.dtb"},
-            {"name": "volcano6i-fp4.dtb"},
-            {
-                "name": "volcano6p.dtb",
-                "apq": True,
-            },
-            {
-                "name": "volcanop.dtb",
-                "apq": True,
-            },
-            {
-                "name": "volcano6ip-fp1.dtb",
-                "apq": True,
-            },
-            {
-                "name": "volcano6ip-fp2.dtb",
-                "apq": True,
-            },
-            {
-                "name": "volcano6ip-fp3.dtb",
-                "apq": True,
-            },
-            {
-                "name": "volcano6ip-fp4.dtb",
-                "apq": True,
-            },
+#            {"name": "volcano6.dtb"},
+#            {"name": "volcano6i-fp1.dtb"},
+#            {"name": "volcano6i-fp2.dtb"},
+#            {"name": "volcano6i-fp3.dtb"},
+#            {"name": "volcano6i-fp4.dtb"},
+#            {
+#                "name": "volcano6p.dtb",
+#                "apq": True,
+#            },
+#            {
+#                "name": "volcanop.dtb",
+#                "apq": True,
+#            },
+#            {
+#                "name": "volcano6ip-fp1.dtb",
+#                "apq": True,
+#            },
+#            {
+#                "name": "volcano6ip-fp2.dtb",
+#                "apq": True,
+#            },
+#            {
+#                "name": "volcano6ip-fp3.dtb",
+#                "apq": True,
+#            },
+#            {
+#                "name": "volcano6ip-fp4.dtb",
+#                "apq": True,
+#            },
         ],
         "dtbo_list": [
             {"name": "volcano-atp-overlay.dtbo"},
@@ -687,21 +690,20 @@ _platform_map = {
             {"name": "volcano6i-idp-wcd9395-ganges-overlay.dtbo"},
             {"name": "volcano6i-idp-wcd9395-brahma-overlay.dtbo"},
             {"name": "volcano-mtp-overlay.dtbo"},
-            {"name": "volcano-mtp-wcd9395-aatc-overlay.dtbo"},
-            {"name": "volcano-mtp-wcd9395-aatc-evros-overlay.dtbo"},
-            {"name": "volcano-mtp-wcd9378-hsj-evros-overlay.dtbo"},
-            {"name": "volcano6i-mtp-wcd9395-ganges-overlay.dtbo"},
-            {"name": "volcano6i-mtp-ganges-overlay.dtbo"},
-            {"name": "volcano6i-mtp-wcd9395-ganges-hac2019-overlay.dtbo"},
-            {"name": "volcano6i-mtp-wcd9395-brahma-overlay.dtbo"},
-            {"name": "volcano6i-mtp-brahma-overlay.dtbo"},
-            {"name": "volcano6i-mtp-wcd9395-moselle-overlay.dtbo"},
-            {"name": "volcano6i-mtp-wcd9395-moselle-emmc-overlay.dtbo"},
-            {"name": "volcano6i-mtp-moselle-overlay.dtbo"},
-            {"name": "volcano6i-mtp-moselle-emmc-overlay.dtbo"},
-            {"name": "volcano-qrd-overlay.dtbo"},
-            {"name": "volcano6i-qrd-moselle-overlay.dtbo"},
-            {"name": "volcano6i-mtp-STSafe320-brahma-overlay.dtbo"},
+#            {"name": "volcano-mtp-wcd9395-aatc-overlay.dtbo"},
+#            {"name": "volcano-mtp-wcd9395-aatc-evros-overlay.dtbo"},
+#            {"name": "volcano-mtp-wcd9378-hsj-evros-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-wcd9395-ganges-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-ganges-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-wcd9395-ganges-hac2019-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-wcd9395-brahma-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-brahma-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-wcd9395-moselle-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-wcd9395-moselle-emmc-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-moselle-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-moselle-emmc-overlay.dtbo"},
+#            {"name": "volcano6i-qrd-moselle-overlay.dtbo"},
+#            {"name": "volcano6i-mtp-STSafe320-brahma-overlay.dtbo"},
         ],
     },
 }
@@ -735,5 +737,17 @@ def _get_dtb_lists(target, dt_overlay_supported):
 def get_dtb_list(target, dt_overlay_supported = True):
     return [dtb["name"] for dtb in _get_dtb_lists(target, dt_overlay_supported).get("dtb_list", [])]
 
+#def get_dtbo_list(target, dt_overlay_supported = True):
+#    return [dtb["name"] for dtb in _get_dtb_lists(target, dt_overlay_supported).get("dtbo_list", [])]
+
 def get_dtbo_list(target, dt_overlay_supported = True):
-    return [dtb["name"] for dtb in _get_dtb_lists(target, dt_overlay_supported).get("dtbo_list", [])]
+    info = _get_dtb_lists(target, dt_overlay_supported)
+    dtbos = list(info.get("dtbo_list", []))
+    if target == "pineapple" and TARGET_PRODUCT == "Asteroids":
+        print("!!! dtbo add for: ", TARGET_PRODUCT)
+        dtbos.append({"name": "volcano-qrd-overlay.dtbo"})
+        dtbos.append({"name": "volcano-qrd-pro-overlay.dtbo"})
+    if target == "pineapple" and TARGET_PRODUCT == "Frogger":
+        print("!!! dtbo add for: ", TARGET_PRODUCT)
+        dtbos.append({"name": "volcano-qrd-frogger-overlay.dtbo"})
+    return [dtbo["name"] for dtbo in dtbos]

@@ -1,5 +1,8 @@
 # Importing to touch module entry api from touch_modules_build.bzl to define module entried for touch drivers
 load(":touch_modules_build.bzl", "touch_module_entry")
+load("@nt_project_info//:dict.bzl",
+    "TARGET_PRODUCT",
+)
 
 # Importing the touch driver headers defined in BUILD.bazel
 touch_driver_modules = touch_module_entry([":touch_drivers_headers"])
@@ -49,21 +52,48 @@ module_entry(
 )
 
 #define ddk_module() for focaltech_fts
-module_entry(
-    name = "focaltech_fts",
-    config_option = "CONFIG_TOUCH_FOCALTECH",
-    srcs = [
-            "focaltech_touch/focaltech_core.c",
-            "focaltech_touch/focaltech_esdcheck.c",
-            "focaltech_touch/focaltech_ex_fun.c",
-            "focaltech_touch/focaltech_ex_mode.c",
-            "focaltech_touch/focaltech_flash/focaltech_upgrade_ft3518.c",
-            "focaltech_touch/focaltech_flash.c",
-            "focaltech_touch/focaltech_gesture.c",
-            "focaltech_touch/focaltech_i2c.c",
-            "focaltech_touch/focaltech_point_report_check.c"
-    ]
-)
+def define_focaltech_modules():
+    if TARGET_PRODUCT == "Frogger":
+        module_entry(
+            name = "focaltech_fts",
+            config_option = "CONFIG_TOUCH_FOCALTECH",
+            srcs = [
+                    "focaltech/focaltech_core.c",
+                    "focaltech/focaltech_esdcheck.c",
+                    "focaltech/focaltech_ex_fun.c",
+                    "focaltech/focaltech_ex_mode.c",
+                    "focaltech/focaltech_flash/focaltech_upgrade_ft3683g.c",
+                    "focaltech/focaltech_flash/focaltech_upgrade_ft3681.c",
+                    "focaltech/focaltech_flash.c",
+                    "focaltech/focaltech_gesture.c",
+                    "focaltech/focaltech_spi_v2.c",
+                    "focaltech/focaltech_point_report_check.c",
+                    "focaltech/focaltech_test/focaltech_test.c",
+                    "focaltech/focaltech_test/focaltech_test_ini.c",
+                    "focaltech/focaltech_test/supported_ic/focaltech_test_ft3683g.c",
+                    "focaltech/focaltech_debug.c"
+            ]
+        )
+    else:
+        module_entry(
+            name = "focaltech_fts",
+            config_option = "CONFIG_TOUCH_FOCALTECH",
+            srcs = [
+                    "focaltech/focaltech_core.c",
+                    "focaltech/focaltech_esdcheck.c",
+                    "focaltech/focaltech_ex_fun.c",
+                    "focaltech/focaltech_ex_mode.c",
+                    "focaltech/focaltech_flash/focaltech_upgrade_ft3683g.c",
+                    "focaltech/focaltech_flash/focaltech_upgrade_ft3681.c",
+                    "focaltech/focaltech_flash.c",
+                    "focaltech/focaltech_gesture.c",
+                    "focaltech/focaltech_spi_v2.c",
+                    "focaltech/focaltech_point_report_check.c",
+                    "focaltech/focaltech_debug.c"
+            ]
+        )
+
+define_focaltech_modules()
 
 #define ddk_module() for synaptics_tcm_ts
 module_entry(

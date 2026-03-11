@@ -34,6 +34,10 @@ load(":target_variants.bzl", "la_variants")
 load(":modules.bzl", "COMMON_GKI_MODULES_LIST")
 load(":modules_unprotected.bzl", "get_unprotected_vendor_modules_list")
 
+load("@nt_project_info//:dict.bzl",
+    "TARGET_PRODUCT",
+)
+
 def _define_build_config(
         msm_target,
         target,
@@ -96,6 +100,7 @@ def _define_build_config(
         ] + [fragment for fragment in build_config_fragments] + [
             "build.config.msm.common",
             "build.config.msm.gki",
+            "build.config.nothing.{}".format(TARGET_PRODUCT),
         ],
     )
 

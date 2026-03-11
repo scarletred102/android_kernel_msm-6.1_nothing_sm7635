@@ -44,24 +44,24 @@ CLIFFS_BOARDS += \
 		 cliffs-cdp-overlay.dtbo \
 		 cliffs-mtp-overlay.dtbo \
 		 cliffs-qrd-overlay.dtbo \
-		 cliffs-rcm-overlay.dtbo \
-		 cliffs-mtp-kiwi-2s-nfc-wcd9395-overlay.dtbo \
-		 cliffs-mtp-pm8550b-overlay.dtbo \
-		 cliffs-mtp-kiwi-2s-nfc-wcd9395-pm8550b-overlay.dtbo \
-		 cliffs-mtp-kiwi-overlay.dtbo \
-		 cliffs-mtp-peach-2s-nfc-wcd9395-overlay.dtbo \
-		 cliffs-mtp-peach-2s-nfc-wcd9395-pm8550b-overlay.dtbo \
-		 cliffs-mtp-peach-overlay.dtbo \
-		 cliffs-rcm-qhdp-overlay.dtbo \
-		 cliffs-rcm-fhdp-kiwi-overlay.dtbo \
-		 cliffs-rcm-qhdp-kiwi-overlay.dtbo
+		 cliffs-rcm-overlay.dtbo #\
+#		 cliffs-mtp-kiwi-2s-nfc-wcd9395-overlay.dtbo \
+#		 cliffs-mtp-pm8550b-overlay.dtbo \
+#		 cliffs-mtp-kiwi-2s-nfc-wcd9395-pm8550b-overlay.dtbo \
+#		 cliffs-mtp-kiwi-overlay.dtbo \
+#		 cliffs-mtp-peach-2s-nfc-wcd9395-overlay.dtbo \
+#		 cliffs-mtp-peach-2s-nfc-wcd9395-pm8550b-overlay.dtbo \
+#		 cliffs-mtp-peach-overlay.dtbo \
+#		 cliffs-rcm-qhdp-overlay.dtbo \
+#		 cliffs-rcm-fhdp-kiwi-overlay.dtbo \
+#		 cliffs-rcm-qhdp-kiwi-overlay.dtbo
 
 pineapple-dtb-$(CONFIG_ARCH_CLIFFS) += \
 	$(call add-overlays, $(CLIFFS_BOARDS) $(NOAPQ_CLIFFS_BOARDS),$(CLIFFS_BASE_DTB))\
 	$(call add-overlays, $(CLIFFS_BOARDS),$(CLIFFS_APQ_BASE_DTB))
 pineapple-overlays-dtb-$(CONFIG_ARCH_CLIFFS) += $(CLIFFS_BOARDS) $(NOAPQ_CLIFFS_BOARDS) $(CLIFFS_BASE_DTB) $(CLIFFS_APQ_BASE_DTB)
 
-VOLCANO_BASE_DTB += volcano.dtb volcano6.dtb volcano6i-fp1.dtb volcano6i-fp2.dtb volcano6i-fp3.dtb volcano6i-fp4.dtb
+VOLCANO_BASE_DTB += volcano.dtb #volcano6.dtb volcano6i-fp1.dtb volcano6i-fp2.dtb volcano6i-fp3.dtb volcano6i-fp4.dtb
 VOLCANO_APQ_BASE_DTB += volcano6p.dtb volcano6ip-fp1.dtb volcano6ip-fp2.dtb volcano6ip-fp3.dtb volcano6ip-fp4.dtb volcanop.dtb
 
 VOLCANO_BOARDS += \
@@ -72,23 +72,33 @@ VOLCANO_BOARDS += \
 		volcano-idp-wcd9395-evros-overlay.dtbo \
 		volcano6i-idp-wcd9395-ganges-overlay.dtbo \
 		volcano6i-idp-wcd9395-brahma-overlay.dtbo \
-		volcano-mtp-overlay.dtbo \
-		volcano-mtp-wcd9395-aatc-overlay.dtbo \
-		volcano-mtp-wcd9395-aatc-evros-overlay.dtbo \
-		volcano-mtp-wcd9378-hsj-evros-overlay.dtbo \
-		volcano-mtp-pm7550ba-overlay.dtbo \
-		volcano6i-mtp-wcd9395-ganges-overlay.dtbo \
-		volcano6i-mtp-ganges-overlay.dtbo \
-		volcano6i-mtp-wcd9395-ganges-hac2019-overlay.dtbo \
-		volcano6i-mtp-wcd9395-brahma-overlay.dtbo \
-		volcano6i-mtp-brahma-overlay.dtbo \
-		volcano6i-mtp-wcd9395-moselle-overlay.dtbo \
-		volcano6i-mtp-moselle-overlay.dtbo \
-		volcano6i-mtp-wcd9395-moselle-emmc-overlay.dtbo \
-		volcano6i-mtp-moselle-emmc-overlay.dtbo \
+		volcano-mtp-overlay.dtbo #\
+#		volcano-mtp-wcd9395-aatc-overlay.dtbo \
+#		volcano-mtp-wcd9395-aatc-evros-overlay.dtbo \
+#		volcano-mtp-wcd9378-hsj-evros-overlay.dtbo \
+#		volcano-mtp-pm7550ba-overlay.dtbo \
+#		volcano6i-mtp-wcd9395-ganges-overlay.dtbo \
+#		volcano6i-mtp-ganges-overlay.dtbo \
+#		volcano6i-mtp-wcd9395-ganges-hac2019-overlay.dtbo \
+#		volcano6i-mtp-wcd9395-brahma-overlay.dtbo \
+#		volcano6i-mtp-brahma-overlay.dtbo \
+#		volcano6i-mtp-wcd9395-moselle-overlay.dtbo \
+#		volcano6i-mtp-moselle-overlay.dtbo \
+#		volcano6i-mtp-wcd9395-moselle-emmc-overlay.dtbo \
+#		volcano6i-mtp-moselle-emmc-overlay.dtbo \
+#		volcano6i-qrd-moselle-overlay.dtbo \
+#		volcano6i-mtp-STSafe320-brahma-overlay.dtbo
+
+ifeq ($(CONFIG_NOTHING_IS_ASTEROIDS), y)
+VOLCANO_BOARDS += \
 		volcano-qrd-overlay.dtbo \
-		volcano6i-qrd-moselle-overlay.dtbo \
-		volcano6i-mtp-STSafe320-brahma-overlay.dtbo
+		volcano-qrd-pro-overlay.dtbo
+endif
+
+ifeq ($(CONFIG_NOTHING_IS_FROGGER), y)
+VOLCANO_BOARDS += \
+		volcano-qrd-frogger-overlay.dtbo
+endif
 
 pineapple-dtb-$(CONFIG_ARCH_VOLCANO) += \
 	$(call add-overlays, $(VOLCANO_BOARDS) $(NOAPQ_VOLCANO_BOARDS),$(VOLCANO_BASE_DTB))\

@@ -22,6 +22,9 @@
 #include "sde_dsc_helper.h"
 #include "sde_vdc_helper.h"
 
+#include <linux/soc/qcom/nt_display_notifier.h>
+#include "sde_trace.h"
+
 /**
  * topology is currently defined by a set of following 3 values:
  * 1. num of layer mixers
@@ -42,6 +45,10 @@
 #define MIN_PREFILL_LINES      40
 #define RSCC_MODE_THRESHOLD_TIME_US 40
 #define DCS_COMMAND_THRESHOLD_TIME_US 40
+#define NT37706A_VXN_T0_BATCH  0x11
+
+struct dsi_panel *nt_panel = NULL;
+static bool can_set_aod = true;
 
 static void dsi_dce_prepare_pps_header(char *buf, u32 pps_delay_ms)
 {
@@ -359,12 +366,6 @@ static int dsi_panel_power_on(struct dsi_panel *panel)
 {
 	int rc = 0;
 
-	rc = dsi_pwr_enable_regulator(&panel->power_info, true);
-	if (rc) {
-		DSI_ERR("[%s] failed to enable vregs, rc=%d\n",
-				panel->name, rc);
-		goto exit;
-	}
 
 	rc = dsi_panel_set_pinctrl_state(panel, true);
 	if (rc) {
@@ -402,6 +403,10 @@ static int dsi_panel_power_off(struct dsi_panel *panel)
 
 	if (gpio_is_valid(panel->reset_config.disp_en_gpio))
 		gpio_set_value_cansleep(panel->reset_config.disp_en_gpio, 0);
+
+	if (2511101 == panel->panel_version || 2511102 == panel->panel_version) {
+		usleep_range(1000, 1500);
+	}
 
 	if (gpio_is_valid(panel->reset_config.reset_gpio) &&
 					!panel->reset_gpio_always_on)
@@ -558,6 +563,7 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 	int rc = 0;
 	unsigned long mode_flags = 0;
 	struct mipi_dsi_device *dsi = NULL;
+	u8 payload[1] = {0x04};
 
 	if (!panel || (bl_lvl > 0xffff)) {
 		DSI_ERR("invalid params\n");
@@ -572,6 +578,12 @@ static int dsi_panel_update_backlight(struct dsi_panel *panel,
 
 	if (panel->bl_config.bl_inverted_dbv)
 		bl_lvl = (((bl_lvl & 0xff) << 8) | (bl_lvl >> 8));
+
+	if ((30 == panel->cur_mode->timing.refresh_rate) && bl_lvl !=0) {
+		if (2511101 == panel->panel_version || 2511102 == panel->panel_version) {
+			mipi_dsi_dcs_write(dsi, 0x6F, payload, sizeof(payload));
+		}
+	}
 
 	rc = mipi_dsi_dcs_set_display_brightness(dsi, bl_lvl);
 	if (rc < 0)
@@ -633,6 +645,49 @@ static int dsi_panel_update_pwm_backlight(struct dsi_panel *panel,
 error:
 	return rc;
 }
+
+int dsi_panel_set_lhbm_state(struct dsi_panel *panel, unsigned long fp_status)
+{
+	int rc = 0;
+	bool update = false;
+
+	if (!panel) {
+		DSI_ERR("invalid params\n");
+		return -EINVAL;
+	}
+
+	mutex_lock(&panel->panel_lock);
+	if (panel->panel_initialized) {
+		if (fp_status && !panel->lhbm_state) {
+			SDE_ATRACE_BEGIN("DSI_CMD_SET_LHBM_ON");
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LHBM_ON);
+			SDE_ATRACE_END("DSI_CMD_SET_LHBM_ON");
+			panel->lhbm_state = true;
+			update = true;
+			DSI_INFO("open local hbm");
+			if (rc)
+				DSI_ERR("[%s] failed to send DSI_CMD_SET_LHBM_ON cmd, rc=%d\n", panel->name, rc);
+		} else if (!fp_status && panel->lhbm_state) {
+			SDE_ATRACE_BEGIN("DSI_CMD_SET_LHBM_OFF");
+			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_LHBM_OFF);
+			SDE_ATRACE_END("DSI_CMD_SET_LHBM_OFF");
+			panel->lhbm_state = false;
+			update = true;
+			DSI_INFO("close local hbm");
+			if (rc)
+				DSI_ERR("[%s] failed to send DSI_CMD_SET_LHBM_OFF cmd, rc=%d\n", panel->name, rc);
+		}
+	} else {
+		panel->lhbm_state = false;
+	}
+	mutex_unlock(&panel->panel_lock);
+
+	if (update)
+		nt_display_update_lcm_state_to_fingerprint(fp_status);
+
+	return rc;
+}
+
 
 int dsi_panel_set_backlight(struct dsi_panel *panel, u32 bl_lvl)
 {
@@ -1541,6 +1596,30 @@ static int dsi_panel_parse_dyn_clk_caps(struct dsi_panel *panel)
 	return 0;
 }
 
+static void dsi_panel_parse_dfps_porches(struct dsi_parser_utils *utils,
+	u32 **dfps_porch_list, const char *porch_type, u32 dfps_list_len) {
+	int rc = 0;
+
+	*dfps_porch_list = kcalloc(dfps_list_len, sizeof(u32), GFP_KERNEL);
+	if (!*dfps_porch_list) {
+		rc = -ENOMEM;
+		DSI_ERR("[%s] dfps porch list parse failed, rc = %d\n", porch_type, rc);
+	}
+
+	rc = utils->read_u32_array(utils->data, porch_type,
+			*dfps_porch_list, dfps_list_len);
+	if (rc) {
+		rc = -EINVAL;
+		DSI_ERR("[%s] dfps porch list parse failed, rc = %d\n", porch_type, rc);
+	}
+
+	DSI_INFO("[%s]: ", porch_type);
+	for (int i = 0; i < dfps_list_len; ++i)
+	{
+		DSI_INFO("[%d] ", (*dfps_porch_list)[i]);
+	}
+}
+
 static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 {
 	int rc = 0;
@@ -1574,6 +1653,8 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 		dfps_caps->type = DSI_DFPS_IMMEDIATE_HFP;
 	} else if (!strcmp(type, "dfps_immediate_porch_mode_vfp")) {
 		dfps_caps->type = DSI_DFPS_IMMEDIATE_VFP;
+	} else if (!strcmp(type, "dfps_immediate_porch_mode_both_hv_porch")) {
+		dfps_caps->type = DSI_DFPS_IMMEDIATE_HV_P;
 	} else {
 		DSI_ERR("[%s] dfps type is not recognized\n", name);
 		rc = -EINVAL;
@@ -1604,6 +1685,22 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 		rc = -EINVAL;
 		goto error;
 	}
+
+	if (dfps_caps->type == DSI_DFPS_IMMEDIATE_HV_P) {
+		dsi_panel_parse_dfps_porches(utils, &dfps_caps->dfps_hfp_list, "qcom,dsi-dfps-hfp-list",
+			dfps_caps->dfps_list_len);
+		dsi_panel_parse_dfps_porches(utils, &dfps_caps->dfps_hbp_list, "qcom,dsi-dfps-hbp-list",
+			dfps_caps->dfps_list_len);
+		dsi_panel_parse_dfps_porches(utils, &dfps_caps->dfps_hpw_list, "qcom,dsi-dfps-hpw-list",
+			dfps_caps->dfps_list_len);
+		dsi_panel_parse_dfps_porches(utils, &dfps_caps->dfps_vbp_list, "qcom,dsi-dfps-vbp-list",
+			dfps_caps->dfps_list_len);
+		dsi_panel_parse_dfps_porches(utils, &dfps_caps->dfps_vfp_list, "qcom,dsi-dfps-vfp-list",
+			dfps_caps->dfps_list_len);
+		dsi_panel_parse_dfps_porches(utils, &dfps_caps->dfps_vpw_list, "qcom,dsi-dfps-vpw-list",
+			dfps_caps->dfps_list_len);
+	}
+
 	dfps_caps->dfps_support = true;
 
 	/* calculate max and min fps */
@@ -1896,6 +1993,19 @@ const char *cmd_set_prop_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-qsync-on-commands",
 	"qcom,mdss-dsi-qsync-off-commands",
 	"qcom,mdss-dsi-calibration-commands",
+	"qcom,mdss-dsi-lhbm-on-command",
+	"qcom,mdss-dsi-lhbm-off-command",
+	"qcom,mdss-dsi-switch-120hz-command",
+	"qcom,mdss-dsi-switch-90hz-command",
+	"qcom,mdss-dsi-switch-60hz-command",
+	"qcom,mdss-dsi-switch-120hz-command-compatibility",
+	"qcom,mdss-dsi-switch-90hz-command-compatibility",
+	"qcom,mdss-dsi-switch-60hz-command-compatibility",
+	"qcom,mdss-dsi-switch-30hz-command",
+	"qcom,mdss-dsi-switch-30hz-gear1-command",
+	"qcom,mdss-dsi-switch-30hz-gear2-command",
+	"qcom,mdss-dsi-switch-30hz-gear3-command",
+	"qcom,mdss-dsi-exit-30hz-command",
 };
 
 const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
@@ -1925,6 +2035,19 @@ const char *cmd_set_state_map[DSI_CMD_SET_MAX] = {
 	"qcom,mdss-dsi-qsync-on-commands-state",
 	"qcom,mdss-dsi-qsync-off-commands-state",
 	"qcom,mdss-dsi-calibration-commands-state",
+	"qcom,mdss-dsi-lhbm-on-command-state",
+	"qcom,mdss-dsi-lhbm-off-command-state",
+	"qcom,mdss-dsi-switch-120hz-command-state",
+	"qcom,mdss-dsi-switch-90hz-command-state",
+	"qcom,mdss-dsi-switch-60hz-command-state",
+	"qcom,mdss-dsi-switch-120hz-command-state-compatibility",
+	"qcom,mdss-dsi-switch-90hz-command-state-compatibility",
+	"qcom,mdss-dsi-switch-60hz-command-state-compatibility",
+	"qcom,mdss-dsi-switch-30hz-command-state",
+	"qcom,mdss-dsi-switch-30hz-gear1-command-state",
+	"qcom,mdss-dsi-switch-30hz-gear2-command-state",
+	"qcom,mdss-dsi-switch-30hz-gear3-command-state",
+	"qcom,mdss-dsi-exit-30hz-command-state",
 };
 
 int dsi_panel_get_cmd_pkt_count(const char *data, u32 length, u32 *cnt)
@@ -3677,6 +3800,14 @@ static void dsi_panel_setup_vm_ops(struct dsi_panel *panel, bool trusted_vm_env)
 	}
 }
 
+int nt_is_panel_detected(void)
+{
+	if (nt_panel == NULL) {
+		DSI_ERR("panel name is not detect\n");
+	}
+	return nt_panel ? 1 : 0;
+}
+
 static int dsi_panel_parse_calib_data(struct dsi_panel *panel,
 			char *raw_calib_data_head, size_t data_size)
 {
@@ -3887,7 +4018,25 @@ struct dsi_panel *dsi_panel_get(struct device *parent,
 		goto error;
 	}
 
-	panel->power_mode = SDE_MODE_DPMS_OFF;
+	rc = utils->read_u32(utils->data, "qcom,mdss-dsi-panel-version", &panel->panel_version);
+	if (rc) {
+		DSI_ERR("failed to read qcom,mdss-dsi-panel-version, rc=%d\n",
+		       rc);
+	}
+
+
+	if (2411101 == panel->panel_version || 2411102 == panel->panel_version) {
+		nt_panel = panel;
+	}
+
+
+	if (2511101 == panel->panel_version || 2511102 == panel->panel_version
+		|| 0 == panel->panel_version) {
+		nt_panel = panel;
+	}
+
+	panel->power_mode = SDE_MODE_DPMS_ON;
+
 	drm_panel_init(&panel->drm_panel, &panel->mipi_device.dev,
 			NULL, DRM_MODE_CONNECTOR_DSI);
 	panel->mipi_device.dev.of_node = of_node;
@@ -4498,6 +4647,13 @@ int dsi_panel_pre_prepare(struct dsi_panel *panel)
 
 	mutex_lock(&panel->panel_lock);
 
+	rc = dsi_pwr_enable_regulator(&panel->power_info, true);
+	if (rc) {
+		DSI_ERR("[%s] failed to enable vregs, rc=%d\n",
+				panel->name, rc);
+		goto error;
+	}
+
 	/* If LP11_INIT is set, panel will be powered up during prepare() */
 	if (panel->lp11_init)
 		goto error;
@@ -4966,6 +5122,104 @@ int dsi_panel_post_switch(struct dsi_panel *panel)
 	return rc;
 }
 
+extern int nt_update_backlight(void);
+
+int send_refreshrate_cmd(struct dsi_panel *panel, int refreshrate)
+{
+	int rc = 0;
+	int brightness;
+	enum dsi_cmd_set_type cmd_set_120, cmd_set_90, cmd_set_60, cmd_set_30;
+
+	mutex_lock(&panel->panel_lock);
+	if (panel->lhbm_state) {
+		goto error;
+	}
+
+	panel->update_init_gamma = true;
+	DSI_INFO("send fps cmd, fps = %d, last_fps = %d\n", refreshrate, panel->last_refresh_rate);
+	if (panel->last_refresh_rate == 30 && refreshrate != 30) {
+		rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_EXIT_30HZ);
+		if (rc) {
+			DSI_ERR("[%s] failed to send DSI_CMD_EXIT_30HZ cmds, rc=%d\n",
+			       panel->name, rc);
+			goto error;
+		}
+		can_set_aod = true;
+	}
+
+	brightness = panel->bl_config.brightness;
+
+	if ((2511101 == panel->panel_version &&
+		panel->panel_batch_id == NT37706A_VXN_T0_BATCH)	||
+		(2511102 == panel->panel_version)) {
+		cmd_set_120 = DSI_CMD_SET_120HZ;
+		cmd_set_90 = DSI_CMD_SET_90HZ;
+		cmd_set_60 = DSI_CMD_SET_60HZ;
+		if (brightness >= 1000)
+			cmd_set_30 = DSI_CMD_SET_30HZ_GEAR3;
+		else if (brightness >= 700)
+			cmd_set_30 = DSI_CMD_SET_30HZ_GEAR2;
+		else
+			cmd_set_30 = DSI_CMD_SET_30HZ_GEAR1;
+	} else if ((2511101 == panel->panel_version &&
+		panel->panel_batch_id != NT37706A_VXN_T0_BATCH)) {
+		cmd_set_120 = DSI_CMD_SET_120HZ_COMPAT;
+		cmd_set_90 = DSI_CMD_SET_90HZ_COMPAT;
+		cmd_set_60 = DSI_CMD_SET_60HZ_COMPAT;
+		if (brightness >= 1000)
+			cmd_set_30 = DSI_CMD_SET_30HZ_GEAR3;
+		else if (brightness >= 700)
+			cmd_set_30 = DSI_CMD_SET_30HZ_GEAR2;
+		else
+			cmd_set_30 = DSI_CMD_SET_30HZ_GEAR1;
+	} else {
+		cmd_set_120 = DSI_CMD_SET_120HZ;
+		cmd_set_90 = DSI_CMD_SET_90HZ;
+		cmd_set_60 = DSI_CMD_SET_60HZ;
+		cmd_set_30 = DSI_CMD_SET_30HZ;
+	}
+
+	switch (refreshrate) {
+		case 120:
+			rc = dsi_panel_tx_cmd_set(panel, cmd_set_120);
+			break;
+		case 90:
+			rc = dsi_panel_tx_cmd_set(panel, cmd_set_90);
+			break;
+		case 60:
+			rc = dsi_panel_tx_cmd_set(panel, cmd_set_60);
+			break;
+		case 30:
+			if (can_set_aod) {
+				rc = dsi_panel_tx_cmd_set(panel, cmd_set_30);
+				if (!rc)
+					can_set_aod = false;
+			}
+			break;
+		default:
+			DSI_ERR("[%s] unsupported refresh rate: %d\n", panel->name, refreshrate);
+			rc = -EINVAL;
+			break;
+	}
+	if (rc) {
+		DSI_ERR("[%s] [%s] failed to send set fps cmds, rc=%d\n", __func__, panel->name, rc);
+		goto error;
+	}
+
+
+	if (panel->last_refresh_rate == 30 && refreshrate != 30) {
+		rc = nt_update_backlight();
+		DSI_INFO("[%s] recovery brightness to %d when exit aod, rc=%d\n",
+			panel->name, panel->bl_config.brightness, rc);
+	}
+
+	panel->last_refresh_rate = refreshrate;
+
+error:
+	mutex_unlock(&panel->panel_lock);
+	return 0;
+}
+
 int dsi_panel_enable(struct dsi_panel *panel)
 {
 	int rc = 0;
@@ -5000,7 +5254,10 @@ int dsi_panel_enable(struct dsi_panel *panel)
 		}
 	}
 	panel->panel_initialized = true;
-
+	panel->update_init_gamma = false;
+	if (2411101 == panel->panel_version || 2411102 == panel->panel_version) {
+		panel->last_refresh_rate = 120;
+	}
 error:
 	mutex_unlock(&panel->panel_lock);
 	return rc;
@@ -5091,6 +5348,8 @@ int dsi_panel_disable(struct dsi_panel *panel)
 	}
 	panel->panel_initialized = false;
 	panel->power_mode = SDE_MODE_DPMS_OFF;
+	panel->lhbm_state = false;
+	panel->update_init_gamma = false;
 
 	mutex_unlock(&panel->panel_lock);
 	return rc;
@@ -5127,7 +5386,7 @@ int dsi_panel_post_unprepare(struct dsi_panel *panel)
 		DSI_ERR("invalid params\n");
 		return -EINVAL;
 	}
-
+	can_set_aod = true;
 	mutex_lock(&panel->panel_lock);
 
 	rc = dsi_panel_power_off(panel);

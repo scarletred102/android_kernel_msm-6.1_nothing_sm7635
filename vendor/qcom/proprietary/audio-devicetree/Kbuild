@@ -47,7 +47,6 @@ ifeq ($(CONFIG_ARCH_VOLCANO), y)
 dtbo-y += volcano-audio.dtbo \
 		volcano-audio-cdp.dtbo \
 		volcano-audio-mtp.dtbo \
-		volcano-audio-qrd.dtbo \
 		volcano-audio-atp.dtbo \
                 volcano-audio-cdp-wcn6450.dtbo \
                 volcano-audio-mtp-wcn6450.dtbo \
@@ -65,6 +64,13 @@ dtbo-y += volcano-audio.dtbo \
 		volcano6i-audio-mtp-wcd9395-moselle.dtbo \
 		volcano6i-audio-mtp-moselle-wingmate.dtbo \
 		volcano6i-audio-qrd-moselle.dtbo
+ifeq ($(CONFIG_NOTHING_IS_ASTEROIDS), y)
+    dtbo-y += Asteroids/volcano-audio-qrd.dtbo
+else ifeq ($(CONFIG_NOTHING_IS_FROGGER), y)
+    dtbo-y += Frogger/volcano-audio-qrd.dtbo
+else
+    dtbo-y += volcano-audio-qrd.dtbo
+endif
 endif
 
 ifeq ($(CONFIG_ARCH_PITTI), y)

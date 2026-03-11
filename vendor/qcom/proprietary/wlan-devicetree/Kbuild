@@ -81,8 +81,13 @@ dtbo-y += cliffs-qca6750.dtbo
 endif
 
 ifeq ($(CONFIG_ARCH_VOLCANO),y)
+ifeq ($(CONFIG_NOTHING_IS_FROGGER), y)
+dtbo-y += volcano-qca6750_frogger.dtbo
+dtbo-y += volcano-wcn6450_frogger.dtbo
+else
 dtbo-y += volcano-qca6750.dtbo
 dtbo-y += volcano-wcn6450.dtbo
+endif
 endif
 
 ifeq ($(CONFIG_ARCH_MONACO),y)

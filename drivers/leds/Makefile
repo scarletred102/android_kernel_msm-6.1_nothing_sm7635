@@ -117,3 +117,6 @@ obj-y					+= blink/
 
 # Simple LED drivers
 obj-y					+= simple/
+
+obj-$(CONFIG_LEDS_AW20036) += aw20036/
+obj-$(CONFIG_LEDS_AW20036_FROGGER) += aw20036_frogger/

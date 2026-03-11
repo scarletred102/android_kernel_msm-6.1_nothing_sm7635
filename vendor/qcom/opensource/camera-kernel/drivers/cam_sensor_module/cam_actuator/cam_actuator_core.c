@@ -11,6 +11,8 @@
 #include "cam_trace.h"
 #include "cam_common_util.h"
 #include "cam_packet_util.h"
+// xft add for nothing custom
+#include "cam_sensor_nothing.h"
 
 int32_t cam_actuator_construct_default_power_setting(
 	struct cam_sensor_power_ctrl_t *power_info)
@@ -338,6 +340,12 @@ int32_t cam_actuator_apply_request(struct cam_req_mgr_apply_request *apply)
 
 release_mutex:
 	mutex_unlock(&(a_ctrl->actuator_mutex));
+
+	if (rc < 0)
+	{
+		cam_nt_driver_errcode(a_ctrl->soc_info.index, NT_CAM_ACTUATOR_ERR);
+	}
+
 	return rc;
 }
 

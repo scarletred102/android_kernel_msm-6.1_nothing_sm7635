@@ -72,7 +72,7 @@
 /*****************************************************************************
 * Private constant and macro definitions using #define
 *****************************************************************************/
-#define FTS_DRIVER_NAME                     "fts_ts"
+#define FTS_DRIVER_NAME                     "fts"
 #define INTERVAL_READ_REG                   200  /* unit:ms */
 #define TIMEOUT_READ_REG                    1000 /* unit:ms */
 #if FTS_POWER_SOURCE_CUST_EN
@@ -2077,8 +2077,8 @@ static int fts_report_buffer_init(struct fts_ts_data *ts_data)
 	}
 
 	return 0;
-
 }
+
 #if FTS_POWER_SOURCE_CUST_EN
 /*****************************************************************************
 * Power Control
@@ -2761,6 +2761,7 @@ tvm_setup:
 		FTS_ERROR("request irq failed");
 		goto err_irq_req;
 	}
+
 #ifdef CONFIG_ARCH_QTI_VM
 	return ret;
 #endif
@@ -2893,7 +2894,6 @@ static int fts_ts_probe_entry(struct fts_ts_data *ts_data)
 		}
 	}
 #else
-
 	ret = fts_ts_probe_delayed(ts_data);
 	if (ret) {
 		FTS_ERROR("Failed to enable resources\n");
@@ -3439,7 +3439,7 @@ static const struct i2c_device_id fts_ts_i2c_id[] = {
 	{},
 };
 static const struct of_device_id fts_dt_match[] = {
-	{.compatible = "focaltech,fts_ts", },
+	{.compatible = "focaltech,fts", },
 	{},
 };
 MODULE_DEVICE_TABLE(of, fts_dt_match);

@@ -11,6 +11,8 @@
 #include "cam_res_mgr_api.h"
 #include "cam_common_util.h"
 #include "cam_packet_util.h"
+// xft add for nothing custom
+#include "cam_sensor_nothing.h"
 
 int cam_flash_led_prepare(struct led_trigger *trigger, int options,
 	int *max_current, bool is_wled)
@@ -391,7 +393,7 @@ static int cam_flash_ops(struct cam_flash_ctrl *flash_ctrl,
 				else
 					curr = max_current;
 			}
-			CAM_DBG(CAM_FLASH, "Led_Torch[%d]: Current: %d",
+			CAM_INFO(CAM_FLASH, "Led_Torch[%d]: Current: %d",
 				i, curr);
 			cam_res_mgr_led_trigger_event(
 				flash_ctrl->torch_trigger[i], curr);
@@ -407,7 +409,7 @@ static int cam_flash_ops(struct cam_flash_ctrl *flash_ctrl,
 				else
 					curr = max_current;
 			}
-			CAM_DBG(CAM_FLASH, "LED_Flash[%d]: Current: %d",
+			CAM_INFO(CAM_FLASH, "LED_Flash[%d]: Current: %d",
 				i, curr);
 			cam_res_mgr_led_trigger_event(
 				flash_ctrl->flash_trigger[i], curr);
@@ -761,9 +763,11 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 				}
 
 				rc = cam_flash_high(fctrl, flash_data);
-				if (rc)
+				if (rc)	{
 					CAM_ERR(CAM_FLASH,
 						"FLASH ON failed : %d", rc);
+					cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
+				}
 			}
 			if (flash_data->opcode ==
 				CAMERA_SENSOR_FLASH_OP_FIRELOW) {
@@ -775,9 +779,11 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 				}
 
 				rc = cam_flash_low(fctrl, flash_data);
-				if (rc)
+				if (rc)	{
 					CAM_ERR(CAM_FLASH,
 						"TORCH ON failed : %d", rc);
+					cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
+				}
 			}
 			if (flash_data->opcode ==
 				CAMERA_SENSOR_FLASH_OP_OFF) {
@@ -786,6 +792,7 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 					CAM_ERR(CAM_FLASH,
 					"LED OFF FAILED: %d",
 					rc);
+					cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 					return rc;
 				}
 			}
@@ -803,15 +810,18 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 					CAM_ERR(CAM_FLASH,
 						"Torch ON failed : %d",
 						rc);
+					cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 					goto nrt_del_req;
 				}
 			} else if (flash_data->opcode ==
 				CAMERA_SENSOR_FLASH_OP_OFF) {
 				rc = cam_flash_off(fctrl);
-				if (rc)
+				if (rc){
 					CAM_ERR(CAM_FLASH,
 					"LED off failed: %d",
 					rc);
+				cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
+				}
 			}
 		} else if (fctrl->nrt_info.cmn_attr.cmd_type ==
 			CAMERA_SENSOR_FLASH_CMD_TYPE_RER) {
@@ -822,6 +832,7 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 					CAM_ERR(CAM_FLASH,
 						"Flash off failed: %d",
 						rc);
+					cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 					goto nrt_del_req;
 				}
 			}
@@ -836,6 +847,7 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 					if (rc) {
 						CAM_ERR(CAM_FLASH,
 							"Fire Torch Failed");
+						cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 						goto nrt_del_req;
 					}
 
@@ -849,6 +861,7 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 				if (rc) {
 					CAM_ERR(CAM_FLASH,
 						"Flash off failed: %d", rc);
+					cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 					continue;
 				}
 				fctrl->flash_state = CAM_FLASH_STATE_START;
@@ -873,6 +886,7 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 					CAM_ERR(CAM_FLASH,
 						"Flash ON failed: rc= %d",
 						rc);
+					cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 					goto apply_setting_err;
 				}
 			}
@@ -887,6 +901,7 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 					CAM_ERR(CAM_FLASH,
 						"Torch ON failed: rc= %d",
 						rc);
+					cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 					goto apply_setting_err;
 				}
 			}
@@ -897,6 +912,7 @@ int cam_flash_pmic_apply_setting(struct cam_flash_ctrl *fctrl,
 			if (rc) {
 				CAM_ERR(CAM_FLASH,
 					"Flash off failed %d", rc);
+				cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 				goto apply_setting_err;
 			}
 		} else if ((flash_data->opcode ==
@@ -1942,6 +1958,7 @@ void cam_flash_shutdown(struct cam_flash_ctrl *fctrl)
 		if (rc) {
 			CAM_ERR(CAM_FLASH,
 				"LED OFF FAILED: %d", rc);
+			cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 		}
 		if (fctrl->func_tbl.power_ops) {
 			rc = fctrl->func_tbl.power_ops(fctrl, false);
@@ -1974,9 +1991,11 @@ int cam_flash_apply_request(struct cam_req_mgr_apply_request *apply)
 
 	mutex_lock(&fctrl->flash_mutex);
 	rc = fctrl->func_tbl.apply_setting(fctrl, apply->request_id);
-	if (rc)
+	if (rc) {
+		cam_nt_driver_errcode(fctrl->soc_info.index, NT_CAM_FLASH_ERR);
 		CAM_ERR(CAM_FLASH, "apply_setting failed with rc=%d",
 			rc);
+	}
 	mutex_unlock(&fctrl->flash_mutex);
 
 	return rc;
