@@ -1428,6 +1428,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 			DSI_INFO("SDE_MODE_DPMS_LP1 enter\n");
 			mutex_lock(&display->panel->panel_lock);
 			if (2511101 == display->panel->panel_version || 2511102 == display->panel->panel_version){
+				display->panel->update_init_gamma = true;
 				if(display->panel->cur_mode->timing.refresh_rate != 30){
 					send_refreshrate_cmd(display->panel, display->panel->cur_mode->timing.refresh_rate);
 				}
