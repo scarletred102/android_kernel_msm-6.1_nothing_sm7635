@@ -1,6 +1,6 @@
-load(":target_variants.bzl", "la_variants")
-load(":msm_kernel_la.bzl", "define_msm_la")
 load(":image_opts.bzl", "boot_image_opts")
+load(":msm_kernel_la.bzl", "define_msm_la")
+load(":target_variants.bzl", "la_variants")
 
 load("@nt_project_info//:dict.bzl",
     "TARGET_PRODUCT",
@@ -103,6 +103,7 @@ def define_pineapple():
         "drivers/mfd/qcom-i2c-pmic.ko",
         "drivers/mfd/qcom-spmi-pmic.ko",
         "drivers/misc/haptic/hapticdrv.ko",
+        "drivers/misc/bhs-irq-controller.ko",
         "drivers/misc/qseecom_proxy.ko",
         "drivers/misc/st21nfc.ko",
         "drivers/mmc/host/cqhci.ko",
