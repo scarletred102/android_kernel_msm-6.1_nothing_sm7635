@@ -7,6 +7,11 @@
      - vendor/qcom/proprietary/
      - vendor/qcom/opensource/
 
+- NOS 4.0(Asteroids-B4.0-251229-2335)
+  - Merge keystone/android14-6.1-keystone-qcom-release.6.1.134+ (a541559c) into qcom-6.1
+  - Merge GKI patches android14-6.1-2025-05_r8..2025-05_r9
+  - System stability fixes
+
 # How do I submit patches to Android Common Kernels
 
 1. BEST: Make all of your changes to upstream Linux. If appropriate, backport to the stable releases.
