@@ -12,6 +12,10 @@
   - Merge GKI patches android14-6.1-2025-05_r8..2025-05_r9
   - System stability fixes
 
+- NOS 4.0(Asteroids-B4.0-260225-1824)
+  - Enhance audio stability
+  - Enhance wifi stability
+
 # How do I submit patches to Android Common Kernels
 
 1. BEST: Make all of your changes to upstream Linux. If appropriate, backport to the stable releases.
