@@ -16,6 +16,10 @@
   - Enhance audio stability
   - Enhance wifi stability
 
+- NOS 4.1(Asteroids-B4.1-260414-1749)
+  - No update
+
+
 # How do I submit patches to Android Common Kernels
 
 1. BEST: Make all of your changes to upstream Linux. If appropriate, backport to the stable releases.
