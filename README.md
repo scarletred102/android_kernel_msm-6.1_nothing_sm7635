@@ -6,6 +6,10 @@
       - vendor/qcom/proprietary/
       - vendor/qcom/opensource/
 
+ - NOS 4.1(Frogger-B4.1-260402-1229)
+   - Improve stability
+   - Improve haptic
+
 
 # How do I submit patches to Android Common Kernels
 
