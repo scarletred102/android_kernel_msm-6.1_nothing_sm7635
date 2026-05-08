@@ -271,7 +271,7 @@ extern long int FTS_CHIP_TYPE;
  * Pinctrl enable
  * default: disable
  */
-#define FTS_PINCTRL_EN                          0
+#define FTS_PINCTRL_EN                          1
 
 /* power policy:
  * FTS_POWER_SOURCE_CUST_EN,FTS_POWER_SUSPEND_OFF_EN
