@@ -10,6 +10,13 @@
    - Improve stability
    - Improve haptic
 
+ - NOS 4.1(Frogger-B4.1-260430-1731)
+   - Improve stability
+   - Improve display
+   - Security patch
+   - Fix touch and video issue
+   - Upgrade to kernel 6.1.157
+
 
 # How do I submit patches to Android Common Kernels
 
