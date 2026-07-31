@@ -17,6 +17,9 @@
    - Fix touch and video issue
    - Upgrade to kernel 6.1.157
 
+ - NOS 4.1(Frogger-B4.1-260630-1839)
+   - Fix TP issue
+
 
 # How do I submit patches to Android Common Kernels
 
