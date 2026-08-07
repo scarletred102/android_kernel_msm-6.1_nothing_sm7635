@@ -19,6 +19,10 @@
 - NOS 4.1(Asteroids-B4.1-260414-1749)
   - No update
 
+- NOS 4.1(Asteroids-B4.1-260618-1048)
+  - Merge keystone/android14-6.1-keystone-qcom-release.6.1.157+ (a4838f3) into qcom-6.1
+  - Merge GKI patches android14-6.1-2025-12_r2
+  - System stability fixes
 
 # How do I submit patches to Android Common Kernels
 
